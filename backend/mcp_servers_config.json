@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "Tally Prime": {
+      "display_name": "Tally Prime MCP Server",
+      "description": "MCP Server for Tally Prime ERP data integration with LLMs. Provides access to financial data, trial balance, ledger balances, stock items, and outstanding bills.",
+      "server_url": "http://localhost:9001",
+      "auth_type": "NONE",
+      "auth_performer": "ADMIN",
+      "default_headers": {},
+      "category": "ERP",
+      "icon_url": "https://raw.githubusercontent.com/dhananjay1405/tally-mcp-server/main/docs/tally-icon.png",
+      "documentation_url": "https://github.com/dhananjay1405/tally-mcp-server",
+      "is_active": true,
+      "ssh_tunnel": {
+        "enabled": false,
+        "host": "",
+        "port": 22,
+        "username": "",
+        "local_port": 9001,
+        "remote_port": 9001
+      }
+    },
+    "GitHub": {
+      "display_name": "GitHub MCP Server",
+      "description": "MCP Server for GitHub integration. Access repositories, issues, pull requests, and more.",
+      "server_url": "http://localhost:3001",
+      "auth_type": "API_TOKEN",
+      "auth_performer": "PER_USER",
+      "default_headers": {},
+      "category": "Development",
+      "icon_url": "https://github.com/github.png",
+      "documentation_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
+      "is_active": true,
+      "ssh_tunnel": {
+        "enabled": false,
+        "host": "",
+        "port": 22,
+        "username": "",
+        "local_port": 3001,
+        "remote_port": 3001
+      }
+    }
+  }
+}

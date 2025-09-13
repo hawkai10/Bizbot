@@ -24,6 +24,7 @@ from onyx.db.llm import update_default_provider
 from onyx.db.llm import upsert_llm_provider
 from onyx.db.models import Tool
 from onyx.db.persona import upsert_persona
+from onyx.seeding.mcp_servers import load_mcp_servers_from_config
 from onyx.server.features.persona.models import PersonaUpsertRequest
 from onyx.server.manage.llm.models import LLMProviderUpsertRequest
 from onyx.server.settings.models import Settings
@@ -234,11 +235,14 @@ def get_seed_config() -> SeedConfiguration | None:
 
 def seed_db() -> None:
     seed_config = _parse_env()
-    if seed_config is None:
-        logger.debug("No seeding configuration file passed")
-        return
-
+    
     with get_session_with_current_tenant() as db_session:
+        # Always load MCP servers from config file, regardless of seed config
+        load_mcp_servers_from_config(db_session)
+        
+        if seed_config is None:
+            logger.debug("No seeding configuration file passed")
+            return
         if seed_config.llms is not None:
             _seed_llms(db_session, seed_config.llms)
         if seed_config.personas is not None:

@@ -32,6 +32,11 @@ def get_mcp_server_by_id(server_id: int, db_session: Session) -> MCPServer:
     return server
 
 
+def get_mcp_server_by_name(server_name: str, db_session: Session) -> MCPServer | None:
+    """Get MCP server by name"""
+    return db_session.scalar(select(MCPServer).where(MCPServer.name == server_name))
+
+
 def get_mcp_servers_by_owner(owner_email: str, db_session: Session) -> list[MCPServer]:
     """Get all MCP servers owned by a specific user"""
     return list(
