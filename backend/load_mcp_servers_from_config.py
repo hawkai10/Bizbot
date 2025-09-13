@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from onyx.db.session import get_db
 from onyx.db.mcp import create_mcp_server__no_commit, get_mcp_server_by_name
-from onyx.db.models import MCPAuthenticationType, MCPAuthenticationPerformer
+from onyx.db.enums import MCPAuthenticationType, MCPAuthenticationPerformer
 
 def load_mcp_servers_from_config():
     """Load MCP servers from configuration file into the database"""

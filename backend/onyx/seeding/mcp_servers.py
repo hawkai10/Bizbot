@@ -10,7 +10,7 @@ from typing import Dict, Any
 from sqlalchemy.orm import Session
 
 from onyx.db.mcp import create_mcp_server__no_commit, get_mcp_server_by_name
-from onyx.db.models import MCPAuthenticationType, MCPAuthenticationPerformer
+from onyx.db.enums import MCPAuthenticationType, MCPAuthenticationPerformer
 from onyx.utils.logger import setup_logger
 
 logger = setup_logger()
