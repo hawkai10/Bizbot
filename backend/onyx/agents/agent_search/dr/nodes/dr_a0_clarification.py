@@ -58,6 +58,7 @@ from onyx.prompts.dr_prompts import DECISION_PROMPT_WO_TOOL_CALLING
 from onyx.prompts.dr_prompts import DEFAULT_DR_SYSTEM_PROMPT
 from onyx.prompts.dr_prompts import REPEAT_PROMPT
 from onyx.prompts.dr_prompts import TOOL_DESCRIPTION
+from onyx.prompts.prompt_template import PromptTemplate
 from onyx.server.query_and_chat.streaming_models import MessageStart
 from onyx.server.query_and_chat.streaming_models import OverallStop
 from onyx.server.query_and_chat.streaming_models import SectionEnd
@@ -65,13 +66,13 @@ from onyx.server.query_and_chat.streaming_models import StreamingType
 from onyx.tools.tool_implementations.images.image_generation_tool import (
     ImageGenerationTool,
 )
-from onyx.tools.tool_implementations.internet_search.internet_search_tool import (
-    InternetSearchTool,
-)
 from onyx.tools.tool_implementations.knowledge_graph.knowledge_graph_tool import (
     KnowledgeGraphTool,
 )
 from onyx.tools.tool_implementations.search.search_tool import SearchTool
+from onyx.tools.tool_implementations.web_search.web_search_tool import (
+    WebSearchTool,
+)
 from onyx.utils.b64 import get_image_type
 from onyx.utils.b64 import get_image_type_from_bytes
 from onyx.utils.logger import setup_logger
@@ -108,19 +109,24 @@ def _get_available_tools(
 
     for tool in graph_config.tooling.tools:
 
+        if not tool.is_available(db_session):
+            logger.info(f"Tool {tool.name} is not available, skipping")
+            continue
+
         tool_db_info = tool_dict.get(tool.id)
         if tool_db_info:
             incode_tool_id = tool_db_info.in_code_tool_id
         else:
             raise ValueError(f"Tool {tool.name} is not found in the database")
 
-        if isinstance(tool, InternetSearchTool):
+        if isinstance(tool, WebSearchTool):
             llm_path = DRPath.WEB_SEARCH.value
             path = DRPath.WEB_SEARCH
         elif isinstance(tool, SearchTool):
             llm_path = DRPath.INTERNAL_SEARCH.value
             path = DRPath.INTERNAL_SEARCH
         elif isinstance(tool, KnowledgeGraphTool) and include_kg:
+            # TODO (chris): move this into the `is_available` check
             if len(active_source_types) == 0:
                 logger.error(
                     "No active source types found, skipping Knowledge Graph tool"
@@ -400,19 +406,19 @@ def clarifier(
         active_source_type_descriptions_str = ""
 
     if graph_config.inputs.persona:
-        assistant_system_prompt = (
+        assistant_system_prompt = PromptTemplate(
             graph_config.inputs.persona.system_prompt or DEFAULT_DR_SYSTEM_PROMPT
-        ) + "\n\n"
+        ).build()
         if graph_config.inputs.persona.task_prompt:
             assistant_task_prompt = (
                 "\n\nHere are more specifications from the user:\n\n"
-                + (graph_config.inputs.persona.task_prompt)
+                + PromptTemplate(graph_config.inputs.persona.task_prompt).build()
             )
         else:
             assistant_task_prompt = ""
 
     else:
-        assistant_system_prompt = DEFAULT_DR_SYSTEM_PROMPT + "\n\n"
+        assistant_system_prompt = PromptTemplate(DEFAULT_DR_SYSTEM_PROMPT).build()
         assistant_task_prompt = ""
 
     chat_history_string = (
